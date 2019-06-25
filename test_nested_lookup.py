@@ -39,6 +39,19 @@ class TestNestedLookup(TestCase):
             "date": "YYYY-MM-DD HH:MM:SS",
         }
         self.subject_dict4 = {1: "a", 2: {"b": 44, "C": 55}, 3: "d", 4: "e"}
+        self.subject_dict5 = {
+            "name": "Rich Sadowsky",
+            "email_address": "test9@example.com",
+            "address": {
+                "street": {
+                    1: "123 Main Street",
+                    2: "Apartment 2"
+                },
+                "CITY": "Boston",
+                "state": "MA"
+            }
+        }
+        
 
     def test_nested_lookup(self):
         results = nested_lookup("d", self.subject_dict)
@@ -53,6 +66,12 @@ class TestNestedLookup(TestCase):
         self.assertIn(100, results)
         self.assertIn(200, results)
         self.assertSetEqual({100, 200}, set(results))
+
+    def test_nested_lookup_with_wild_int_keys_in_dict(self):
+        results = nested_lookup("city", self.subject_dict5, wild=True)
+        self.assertEqual(1, len(results))
+        self.assertIn("Boston", results)
+        self.assertSetEqual({'Boston'}, set(results))
 
     def test_nested_lookup_wrapped_in_list_in_dict_in_list(self):
         results = nested_lookup("d", [{}, {"H": [self.subject_dict]}])
